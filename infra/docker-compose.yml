@@ -1,8 +1,33 @@
 services:
+  discovery-service:
+    build:
+      context: ..
+      dockerfile: services/discovery-service/Dockerfile
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+
   customer-service:
     build:
       context: ..
       dockerfile: services/customer-service/Dockerfile
     container_name: customer-service
+    depends_on:
+      - discovery-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
     ports:
       - "8081:8081"
+
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: api-gateway
+    depends_on:
+      - discovery-service
+      - customer-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    ports:
+      - "8080:8080"

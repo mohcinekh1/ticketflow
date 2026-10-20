@@ -10,7 +10,7 @@ this service only manages the business profile.
 ## Overview
 - **Port:** 8081
 - **Database:** H2 in-memory (recreated on every start)
-- **Depends on:** nothing
+- **Depends on:** discovery-service when running with Eureka
 
 | Method | Path | Description |
 |---|---|---|
@@ -31,11 +31,21 @@ Errors follow RFC 9457 (`ProblemDetail`): 400 validation, 404 not found, 409 dup
     exceptions/    domain exceptions and their HTTP mapping
 
 ## Run locally
+Start `discovery-service` first if you want the service to register in Eureka:
+
+    ./mvnw -pl services/discovery-service spring-boot:run
+
     ./mvnw -pl services/customer-service spring-boot:run
 
     curl -i -X POST localhost:8081/api/customers \
       -H 'Content-Type: application/json' \
       -d '{"firstName":"Sara","lastName":"Idrissi","email":"sara@example.com"}'
+
+Run another local instance on a different port:
+
+    ./mvnw -pl services/customer-service spring-boot:run -Dspring-boot.run.arguments="--server.port=8082"
+
+Each instance registers in Eureka with a unique instance id.
 
 ## Run with Docker
     docker compose -f infra/docker-compose.yml up --build customer-service
