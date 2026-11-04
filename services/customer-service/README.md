@@ -10,7 +10,7 @@ this service only manages the business profile.
 ## Overview
 - **Port:** 8081
 - **Database:** H2 in-memory (recreated on every start)
-- **Depends on:** discovery-service when running with Eureka
+- **Depends on:** config-server and discovery-service
 
 | Method | Path | Description |
 |---|---|---|
@@ -19,6 +19,7 @@ this service only manages the business profile.
 | GET | `/api/customers` | List customers |
 | PUT | `/api/customers/{id}` | Update a customer |
 | DELETE | `/api/customers/{id}` | Delete a customer |
+| GET | `/api/config/message` | Read the refreshable Config Server demo value |
 
 Errors follow RFC 9457 (`ProblemDetail`): 400 validation, 404 not found, 409 duplicate email.
 
@@ -31,7 +32,9 @@ Errors follow RFC 9457 (`ProblemDetail`): 400 validation, 404 not found, 409 dup
     exceptions/    domain exceptions and their HTTP mapping
 
 ## Run locally
-Start `discovery-service` first if you want the service to register in Eureka:
+Start `config-server` and `discovery-service` first:
+
+    ./mvnw -pl services/config-server spring-boot:run
 
     ./mvnw -pl services/discovery-service spring-boot:run
 
@@ -43,9 +46,15 @@ Start `discovery-service` first if you want the service to register in Eureka:
 
 Run another local instance on a different port:
 
-    ./mvnw -pl services/customer-service spring-boot:run -Dspring-boot.run.arguments="--server.port=8082"
+    ./mvnw -pl services/customer-service spring-boot:run -Dspring-boot.run.arguments="--server.port=8091"
 
 Each instance registers in Eureka with a unique instance id.
+
+To test dynamic configuration, change `ticketflow.message` in
+`config-repo/customer-service.yml`, then call:
+
+    curl -X POST http://localhost:8081/actuator/refresh
+    curl http://localhost:8081/api/config/message
 
 ## Run with Docker
     docker compose -f infra/docker-compose.yml up --build customer-service

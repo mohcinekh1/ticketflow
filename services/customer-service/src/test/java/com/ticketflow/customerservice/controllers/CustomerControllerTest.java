@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(properties = {
+        "spring.config.import=",
+        "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false"
 })
@@ -76,5 +78,12 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body(email)))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void exposesConfigurationMessage() throws Exception {
+        mockMvc.perform(get("/api/config/message"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("test-message-from-local-profile"));
     }
 }

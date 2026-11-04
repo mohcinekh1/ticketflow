@@ -1,0 +1,21 @@
+server:
+  port: 8081
+
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${server.port}:${random.uuid}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+
+ticketflow:
+  message: Welcome to TicketFlow from Config Server

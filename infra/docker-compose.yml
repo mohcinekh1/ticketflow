@@ -7,6 +7,14 @@ services:
     ports:
       - "8761:8761"
 
+  config-server:
+    build:
+      context: ..
+      dockerfile: services/config-server/Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+
   customer-service:
     build:
       context: ..
@@ -14,8 +22,11 @@ services:
     container_name: customer-service
     depends_on:
       - discovery-service
+      - config-server
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+    restart: on-failure
     ports:
       - "8081:8081"
 
@@ -26,8 +37,11 @@ services:
     container_name: api-gateway
     depends_on:
       - discovery-service
+      - config-server
       - customer-service
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+    restart: on-failure
     ports:
       - "8080:8080"
