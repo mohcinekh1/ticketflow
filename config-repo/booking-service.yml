@@ -1,0 +1,11 @@
+server:
+  port: 8083
+
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          event-service:
+            connectTimeout: 2000
+            readTimeout: 3000

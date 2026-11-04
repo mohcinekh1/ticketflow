@@ -13,6 +13,18 @@ spring:
                 - Path=/api/customers/**
               filters:
                 - AddResponseHeader=X-Served-By,api-gateway
+            - id: event-service
+              uri: lb://event-service
+              predicates:
+                - Path=/api/events/**
+              filters:
+                - AddResponseHeader=X-Served-By,api-gateway
+            - id: booking-service
+              uri: lb://booking-service
+              predicates:
+                - Path=/api/bookings/**
+              filters:
+                - AddResponseHeader=X-Served-By,api-gateway
 
 management:
   endpoint:

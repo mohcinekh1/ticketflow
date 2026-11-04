@@ -30,6 +30,37 @@ services:
     ports:
       - "8081:8081"
 
+  event-service:
+    build:
+      context: ..
+      dockerfile: services/event-service/Dockerfile
+    container_name: event-service
+    depends_on:
+      - discovery-service
+      - config-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+    restart: on-failure
+    ports:
+      - "8082:8082"
+
+  booking-service:
+    build:
+      context: ..
+      dockerfile: services/booking-service/Dockerfile
+    container_name: booking-service
+    depends_on:
+      - discovery-service
+      - config-server
+      - event-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+    restart: on-failure
+    ports:
+      - "8083:8083"
+
   api-gateway:
     build:
       context: ..
@@ -39,6 +70,8 @@ services:
       - discovery-service
       - config-server
       - customer-service
+      - event-service
+      - booking-service
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       CONFIG_SERVER_URL: http://config-server:8888
